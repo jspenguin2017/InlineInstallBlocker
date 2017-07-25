@@ -4,6 +4,15 @@
     <meta charset="utf-8" />
     <meta name="author" content="jspenguin2017" />
     <title>Icon Generator</title>
+    <style>
+        /* Debug scalling */
+        :root {
+            --scale: 1;
+        }
+    </style>
+    <script>
+        const scale = getComputedStyle(document.documentElement).getPropertyValue("--scale");
+    </script>
     <script>
         //Math functions
 
@@ -105,7 +114,7 @@
             }
         };
         /**
-         * Get a curve generator that generates a quadratic function passing through 3 points.
+         * Create a curve generator that generates a quadratic function passing through 3 points.
          * https://math.stackexchange.com/questions/245835
          * @function
          * @param {Vector2D} pt1 - The first point.
@@ -115,7 +124,7 @@
          ** @param {integer} x - The x value.
          ** @return {integer} The y value.
          */
-        const createCurveGenerator = (pt1, pt2, pt3) => {
+        const createQuadraticCurveGenerator = (pt1, pt2, pt3) => {
             let m = new Matrix(
                 [pt1.x ** 2, pt1.x, 1, pt1.y],
                 [pt2.x ** 2, pt2.x, 1, pt2.y],
@@ -172,16 +181,69 @@
         };
     </script>
 </head>
-<body>
-    <canvas height="128" width="128"></canvas>
+<body style="background-color:ghostwhite;">
+    <p id="mousePos" style="position:absolute; left:calc(var(--scale) * 128px + 40px); top:8px; margin:0;">(0, 0)</p>
+    <canvas height="128" width="128" style="width:calc(var(--scale) * 128px); height:calc(var(--scale) * 128px); image-rendering:pixelated;"></canvas>
     <script>
         const canvas = document.querySelector("canvas");
         const context = canvas.getContext("2d");
+
+        {
+            //Show coordinate on mouse move
+            let locked = false;
+            const rect = canvas.getBoundingClientRect();
+            const update = (e) => {
+                const x = ((e.clientX - rect.left) / scale) | 0;
+                const y = ((e.clientY - rect.top) / scale) | 0;
+                document.getElementById("mousePos").innerHTML = `(${x}, ${y})`;
+            };
+            canvas.addEventListener("mousemove", (e) => {
+                !locked && update(e);
+            });
+            canvas.addEventListener("click", (e) => {
+                update(e);
+                locked = !locked;
+            });
+        }
+
+        //Initialize style
+        context.lineWidth = 7;
+
+        /*
+        //Having a control point actually works better... It allows me to "rotate" the curve to make it more natural
+        //I will just go use the built in function
         drawCurve(
             context,
-            createCurveGenerator(new Vector2D(0, 0), new Vector2D(10, 50), new Vector2D(20, 60)),
+            createQuadraticCurveGenerator(new Vector2D(0, 50), new Vector2D(43, 37), new Vector2D(64, 0)),
             0, 128,
         );
+        */
+
+        //Draw shield
+        context.beginPath();
+        context.moveTo(5, 40);
+        context.quadraticCurveTo(30, 30, 64, 5);
+        context.quadraticCurveTo(128 - 30, 30, 128 - 5, 40);
+        context.quadraticCurveTo(128 - 20, 122, 64, 128 - 5);
+        context.quadraticCurveTo(20, 122, 5, 40);
+        context.closePath();
+        context.fillStyle = "white";
+        context.fill();
+        context.fillStyle = "black";
+        context.stroke();
+
+        //Draw download arrow
+        context.beginPath();
+        context.moveTo(50, 30);
+        context.lineTo(128 - 50, 30);
+        context.lineTo(128 - 50, 80);
+        context.lineTo(128 - 35, 80);
+        context.lineTo(64, 110);
+        context.lineTo(35, 80);
+        context.lineTo(50, 80);
+        context.closePath();
+        context.fillStyle = "black";
+        context.fill();
     </script>
 </body>
 </html>
