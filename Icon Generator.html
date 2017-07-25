@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="author" content="jspenguin2017" />
+    <title>Icon Generator</title>
+    <script>
+        /**
+         * The tolerance in float comparison.
+         * @const {float}
+         */
+        Math.TOLERANCE = 1e-7;
+        /**
+         * Compare two floats with tolerance.
+         * @function
+         * @param {float} a - The first float.
+         * @param {float} b - The second float.
+         * @param {float} [t=Math.TOLERANCE] - The tolerance.
+         * @return {boolean} Whether two floats match within tolerance.
+         */
+        Math.compare = (a, b, t = Math.TOLERANCE) => Math.abs(a - b) < t;
+        /**
+         * 2 dimensional vector.
+         * @class
+         */
+        const Vector2D = class {
+            /**
+             * Constructor.
+             * @constructor
+             * @param {integer} x - The x value.
+             * @param {integer} y - The y value.
+             */
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+            }
+        };
+        /**
+         * Matrix.
+         * @class
+         */
+        const Matrix = class {
+            /**
+             * Constructor.
+             * @constructor
+             * @param {Array.<integer>} ...args - Matrix data.
+             */
+            constructor(...args) {
+                this.data = args;
+                this.rowCount = this.data.length;
+                this.colCount = this.rowCount ? this.data[0].length : 0;
+            }
+            /**
+             * Get a value.
+             * @method
+             * @param {integer} row - The row number.
+             * @param {integer} col - The colomn number.
+             * @param {boolean} useMath - Set to true if row number starts with 1 instead of 0.
+             * @return {integer} The value.
+             */
+            fetch(row, col, useMath = false) {
+                if (useMath) {
+                    row--; col--;
+                }
+                return this.data[row][col];
+            }
+            /**
+             * Similar to fetch(), but set a value instead.
+             * @method
+             * @param {integer} value - The value to set.
+             * @return {undefined} No return value.
+             */
+            put(row, col, value, useMath = false) {
+                if (useMath) {
+                    row--; col--;
+                }
+                this.data[row][col] = value;
+            }
+            /**
+             * Mutate this matrix, set it to its reduced row echelon form.
+             * This method is not optimized.
+             * @method
+             */
+            rref() {
+                let leading = 0;
+                outmost: for (let col = 0; col < this.colCount; col++) {
+                    //Find first non-zero entry and put it to top
+                    if (Math.compare(this.data[leading][col], 0)) {
+                        outer: {
+                            for (let row = leading; row < this.rowCount; row++) {
+                                if (!Math.compare(this.data[row][col], 0)) {
+                                    //Swap row
+                                    if (row !== leading) {
+                                        [this.data[leading][col], this.data[row][col]] =
+                                            [this.data[row][col], this.data[leading][col]];
+                                    }
+                                    //Exit
+                                    break outer;
+                                }
+                            }
+                            //Column filled with zeros
+                            continue outmost;
+                        }
+                    }
+                    //Scale the row
+                    if (!Math.compare(this.data[leading][col], 1)) {
+                        const factor = this.data[leading][col];
+                        for (let col = 0; col < this.colCount; col++) {
+                            this.data[leading][col] /= factor;
+                        }
+                    }
+                    //Zero out other rows
+                    for (let row = 0; row < this.rowCount; row++) {
+                        if (row === leading || Math.compare(this.data[row][col], 0)) {
+                            continue;
+                        }
+                        const factor = this.data[row][leading];
+                        for (let c = 0; c < this.colCount; c++) {
+                            this.data[row][c] -= this.data[leading][c] * factor;
+                        }
+                    }
+                    //Change leading counter
+                    if (++leading >= this.rowCount) {
+                        break outmost;
+                    }
+                }
+            }
+        };
+        /**
+         * Get a curve generator that generates a quadratic function passing
+         * through 3 points.
+         * @function
+         * @param {Vector2D} pt1 - The first point.
+         * @param {Vector2D} pt2 - The second point.
+         * @param {Vector2D} pt3 - The third point.
+         * @return {Function} The generator.
+         ** @param {integer} x - The x value.
+         ** @return {integer} The y value.
+         */
+        const createCurveGenerator = (pt1, pt2, pt3) => {
+
+        };
+    </script>
+</head>
+<body>
+    <canvas height="128" width="128"></canvas>
+    <script>
+        const canvas = document.querySelector("canvas");
+        const context = canvas.getContext("2d");
+        const m = new Matrix([1, 2, 3, 4, 5], [3, 4, 5, 6, 7], [1, 2, 6, 3, 4]);
+        console.table(m.data);
+        m.rref();
+        console.table(m.data);
+    </script>
+</body>
+</html>
