@@ -91,8 +91,8 @@
                                 if (!Math.compare(this.data[row][col], 0)) {
                                     //Swap row
                                     if (row !== leading) {
-                                        [this.data[leading][col], this.data[row][col]] =
-                                            [this.data[row][col], this.data[leading][col]];
+                                        [this.data[leading], this.data[row]] =
+                                            [this.data[row], this.data[leading]];
                                     }
                                     //Exit
                                     break outer;
@@ -119,6 +119,8 @@
                             this.data[row][c] -= this.data[leading][c] * factor;
                         }
                     }
+                    //Debug log
+                    //console.table(this.data);
                     //Change leading counter
                     if (++leading >= this.rowCount) {
                         break outmost;
@@ -127,8 +129,8 @@
             }
         };
         /**
-         * Get a curve generator that generates a quadratic function passing
-         * through 3 points.
+         * Get a curve generator that generates a quadratic function passing through 3 points.
+         * https://math.stackexchange.com/questions/245835
          * @function
          * @param {Vector2D} pt1 - The first point.
          * @param {Vector2D} pt2 - The second point.
@@ -138,7 +140,14 @@
          ** @return {integer} The y value.
          */
         const createCurveGenerator = (pt1, pt2, pt3) => {
-
+            let m = new Matrix(
+                [pt1.x ** 2, pt1.x, 1, pt1.y],
+                [pt2.x ** 2, pt2.x, 1, pt2.y],
+                [pt3.x ** 2, pt3.x, 1, pt3.y],
+            );
+            console.table(m.data);
+            m.rref();
+            console.table(m.data);
         };
     </script>
 </head>
@@ -147,10 +156,9 @@
     <script>
         const canvas = document.querySelector("canvas");
         const context = canvas.getContext("2d");
-        const m = new Matrix([1, 2, 3, 4, 5], [3, 4, 5, 6, 7], [1, 2, 6, 3, 4]);
-        console.table(m.data);
-        m.rref();
-        console.table(m.data);
+
+
+        createCurveGenerator(new Vector2D(0, 0), new Vector2D(5, 4), new Vector2D(10, 5));
     </script>
 </body>
 </html>
