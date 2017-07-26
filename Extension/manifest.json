@@ -1,0 +1,47 @@
+{
+  "author": "jspenguin2017",
+  "background": {
+    "persistent": false,
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "browser_action": {
+    "default_icon": {
+      "128": "icon.png"
+    },
+    "default_title": "Inline Install Blocker",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "js": [
+        "content.js"
+      ],
+      "match_about_blank": true,
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "description": "An inline install blocker for Chrome and Chromium.",
+  "homepage_url": "https://github.com/jspenguin2017/InlineInstallBlocker/",
+  "icons": {
+    "128": "icon.png"
+  },
+  "incognito": "spanning",
+  "manifest_version": 2,
+  "minimum_chrome_version": "59.0",
+  "name": "Inline Install Blocker",
+  "options_ui": {
+    "chrome_style": true,
+    "page": "options.html"
+  },
+  "permissions": [
+    "tabs"
+  ],
+  "version": "1.0"
+}
