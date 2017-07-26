@@ -1,7 +1,6 @@
 {
   "author": "jspenguin2017",
   "background": {
-    "persistent": false,
     "scripts": [
       "background.js"
     ]
@@ -37,6 +36,7 @@
   "minimum_chrome_version": "59.0",
   "name": "Inline Install Blocker",
   "permissions": [
+    "storage",
     "tabs"
   ],
   "version": "1.0"

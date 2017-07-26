@@ -5,12 +5,15 @@
     <meta name="author" content="jspenguin2017" />
     <title>Inline Install Blocker</title>
     <style>
+        /* Center content */
         body {
-            width: 250px;
-            height: 400px;
+            width: 300px;
+            height: 300px;
             text-align: center;
+            font-size: medium;
         }
 
+        /* Animate loading circle */
         @keyframes rotate {
             from {
                 transform: rotate(0deg);
@@ -22,12 +25,48 @@
         }
 
         #loading {
-            margin-top: 30px;
-            animation: rotate 1.3s cubic-bezier(0.7, 0.3, 0.3, 0.7) infinite;
+            animation: rotate 0.5s linear infinite;
         }
+
+        /* Button style */
+        button {
+            color: white;
+            background-color: #808080;
+            border-radius: 3px;
+            border: none;
+            padding: 10px;
+        }
+
+            button:active {
+                box-shadow: inset 0 6px 6px rgba(0, 0, 0, .125);
+            }
+
+            button:hover {
+                background-color: #707070;
+            }
+
+            button:focus {
+                outline: 0;
+            }
     </style>
 </head>
 <body>
     <img id="loading" src="loading.png" alt="loading" />
+    <div id="content" style="display:none;">
+        <div id="blocking">
+            <p>Inline install is blocked on this page</p>
+            <button>Allow next attempt</button>
+        </div>
+        <div id="allowing">
+            <p>Allowing next inline install attempt</p>
+            <button>Revoke permission</button>
+        </div>
+        <hr />
+        <div id="anti-spam">
+            <p>Force close tabs that requested inline install 10 times</p>
+            <button>Enabled</button>
+        </div>
+    </div>
+    <script src="popup.js" charset="utf-8"></script>
 </body>
 </html>

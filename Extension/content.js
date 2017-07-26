@@ -3,24 +3,13 @@
 //The communication key
 const magic = "" + Math.random() + Math.random();
 
-//Block count
-let blockCount = 0;
-
-//Establish communication channel
+//Establish communication channels
+//The content script only serve as a bridge between background script and page script
 addEventListener(magic, (e) => {
-    switch (e.detail) {
-        case "attempt blocked":
-            blockCount++;
-            chrome.runtime.sendMessage({ cmd: "update count", count: blockCount > 999 ? "999+" : String(blockCount) });
-            break;
-        case "allow once used":
-            blockCount = 0;
-            chrome.runtime.sendMessage({ cmd: "update count", count: "0" });
-            break;
-        default:
-            //Ignore
-            break;
-    };
+    chrome.runtime.sendMessage({ cmd: e.detail });
+});
+chrome.runtime.onMessage.addListener((...args) => {
+    dispatchEvent(new CustomEvent(magic, { detail: args[0].cmd }));
 });
 
 //Payload to inject
@@ -34,8 +23,16 @@ const payload = () => {
     const dispatchEvent = window.dispatchEvent.bind(window);
     const CustomEvent = window.CustomEvent.bind(window);
     window.addEventListener(magic, (e) => {
-        if (e.detail === "allow once") {
-            allowOnce = true;
+        switch (e.detail) {
+            case "allow once":
+                allowOnce = true;
+                break;
+            case "revoke allow once":
+                allowOnce = false;
+                break;
+            default:
+                //Ignore
+                break;
         }
     });
 
@@ -44,10 +41,10 @@ const payload = () => {
     const _installStr = window.chrome.webstore.install.toString();
     const install = (...args) => {
         if (allowOnce) {
+            allowOnce = false;
             dispatchEvent(new CustomEvent(magic, {
                 detail: "allow once used",
             }));
-            allowOnce = false;
             return _install(...args);
         } else {
             dispatchEvent(new CustomEvent(magic, {
