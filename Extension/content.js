@@ -5,6 +5,7 @@ const magic = "" + Math.random() + Math.random();
 
 //Block count
 let blockCount = 0;
+
 //Establish communication channel
 addEventListener(magic, (e) => {
     switch (e.detail) {

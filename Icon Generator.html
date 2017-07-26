@@ -206,44 +206,76 @@
             });
         }
 
-        //Initialize style
-        context.lineWidth = 7;
+        switch (1) {
+            case 0:
 
-        /*
-        //Having a control point actually works better... It allows me to "rotate" the curve to make it more natural
-        //I will just go use the built in function
-        drawCurve(
-            context,
-            createQuadraticCurveGenerator(new Vector2D(0, 50), new Vector2D(43, 37), new Vector2D(64, 0)),
-            0, 128,
-        );
-        */
+                //Icon
 
-        //Draw shield
-        context.beginPath();
-        context.moveTo(5, 40);
-        context.quadraticCurveTo(30, 30, 64, 5);
-        context.quadraticCurveTo(128 - 30, 30, 128 - 5, 40);
-        context.quadraticCurveTo(128 - 20, 122, 64, 128 - 5);
-        context.quadraticCurveTo(20, 122, 5, 40);
-        context.closePath();
-        context.fillStyle = "white";
-        context.fill();
-        context.fillStyle = "black";
-        context.stroke();
+                //Initialize style
+                context.lineWidth = 7;
 
-        //Draw download arrow
-        context.beginPath();
-        context.moveTo(50, 30);
-        context.lineTo(128 - 50, 30);
-        context.lineTo(128 - 50, 80);
-        context.lineTo(128 - 35, 80);
-        context.lineTo(64, 110);
-        context.lineTo(35, 80);
-        context.lineTo(50, 80);
-        context.closePath();
-        context.fillStyle = "black";
-        context.fill();
+                /*
+                //Having a control point actually works better... It allows me to "rotate" the curve to make it more natural
+                //I will just go use the built in function
+                drawCurve(
+                    context,
+                    createQuadraticCurveGenerator(new Vector2D(0, 50), new Vector2D(43, 37), new Vector2D(64, 0)),
+                    0, 128,
+                );
+                */
+
+                //Draw shield
+                context.beginPath();
+                context.moveTo(5, 40);
+                context.quadraticCurveTo(30, 30, 64, 5);
+                context.quadraticCurveTo(128 - 30, 30, 128 - 5, 40);
+                context.quadraticCurveTo(128 - 20, 122, 64, 128 - 5);
+                context.quadraticCurveTo(20, 122, 5, 40);
+                context.closePath();
+                context.fillStyle = "white";
+                context.fill();
+                context.strokeStyle = "black";
+                context.stroke();
+
+                //Draw download arrow
+                context.beginPath();
+                context.moveTo(50, 30);
+                context.lineTo(128 - 50, 30);
+                context.lineTo(128 - 50, 80);
+                context.lineTo(128 - 35, 80);
+                context.lineTo(64, 110);
+                context.lineTo(35, 80);
+                context.lineTo(50, 80);
+                context.closePath();
+                context.strokeStyle = "black";
+                context.fill();
+
+                break;
+
+
+            case 1:
+
+                //Load circle
+
+                //Initialize style
+                context.lineWidth = 10;
+
+                //Gray part
+                context.beginPath();
+                context.arc(64, 64, 55, 1.5 * Math.PI, 3 * Math.PI);
+                context.strokeStyle = "gray";
+                context.stroke();
+
+                //Blue part
+                context.beginPath();
+                context.arc(64, 64, 55, 1 * Math.PI, 1.5 * Math.PI);
+                context.strokeStyle = "deepskyblue";
+                context.stroke();
+
+                break;
+
+
+        }
     </script>
 </body>
 </html>
