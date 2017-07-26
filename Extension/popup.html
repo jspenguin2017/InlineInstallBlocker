@@ -4,8 +4,30 @@
     <meta charset="utf-8" />
     <meta name="author" content="jspenguin2017" />
     <title>Inline Install Blocker</title>
+    <style>
+        body {
+            width: 250px;
+            height: 400px;
+            text-align: center;
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #loading {
+            margin-top: 30px;
+            animation: rotate 1.3s cubic-bezier(0.7, 0.3, 0.3, 0.7) infinite;
+        }
+    </style>
 </head>
 <body>
-
+    <img id="loading" src="loading.png" alt="loading" />
 </body>
 </html>
