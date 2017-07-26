@@ -5,11 +5,12 @@ const magic = "" + Math.random() + Math.random();
 
 //Establish communication channels
 //The content script only serve as a bridge between background script and page script
-addEventListener(magic, (e) => {
-    chrome.runtime.sendMessage({ cmd: e.detail });
+const pipe = chrome.runtime.connect({ name: "content" });
+pipe.onMessage.addListener((msg) => {
+    dispatchEvent(new CustomEvent(magic, { detail: msg.cmd }));
 });
-chrome.runtime.onMessage.addListener((...args) => {
-    dispatchEvent(new CustomEvent(magic, { detail: args[0].cmd }));
+addEventListener(magic, (e) => {
+    pipe.postMessage({ cmd: e.detail });
 });
 
 //Payload to inject
