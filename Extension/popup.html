@@ -5,7 +5,7 @@
     <meta name="author" content="jspenguin2017" />
     <title>Inline Install Blocker</title>
     <style>
-        /* Placement */
+        /* Basic sizing */
         body {
             text-align: center;
             font-size: medium;
@@ -13,16 +13,23 @@
             margin: 0;
         }
 
+        div {
+            padding-left: 1em;
+            padding-right: 1em;
+        }
+
         p {
             margin-top: 0;
+            margin-bottom: 0;
             padding-top: 1em;
+            padding-bottom: 1em;
         }
 
         button {
             margin-bottom: 1em;
         }
 
-        /* Loading circle */
+        /* Loading overlay */
         @keyframes rotate {
             from {
                 transform: rotate(0deg);
@@ -87,7 +94,7 @@
             }
 
 
-        /* Cards */
+        /* Div backgrounds */
         .background-red {
             background-color: #FFE0E0;
         }
@@ -98,8 +105,17 @@
     </style>
 </head>
 <body>
-    <div id="loading">
+    <!-- Loading overlay -->
+    <section id="loading">
         <img src="loading.png" alt="loading" />
+    </section>
+    <!-- First section -->
+    <div id="not-injected" class="background-red" style="display:none;">
+        <p>
+            Not activated on this page
+            <br /><br />
+            This page loaded before this extension or this page is protected.
+        </p>
     </div>
     <div id="blocking" class="background-green">
         <p>Inline install is blocked on this page</p>
@@ -109,6 +125,7 @@
         <p>Allowing next inline install attempt</p>
         <button class="button-green">Revoke permission</button>
     </div>
+    <!-- Second section -->
     <div id="force-close-on" class="background-green">
         <p>Force close tabs that requested inline install 10 times</p>
         <button class="button-red">Enabled, click to disable</button>
@@ -117,6 +134,7 @@
         <p>Force close tabs that requested inline install 10 times</p>
         <button class="button-green">Disabled, click to enable</button>
     </div>
+    <!-- Load script -->
     <script src="popup.js" charset="utf-8"></script>
 </body>
 </html>

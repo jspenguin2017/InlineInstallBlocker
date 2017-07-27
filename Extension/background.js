@@ -1,6 +1,14 @@
 "use strict";
 
 /**
+ * Check last error and noop.
+ * @function
+ */
+const noop = () => {
+    void chrome.runtime.lastError;
+};
+
+/**
  * Tabs container.
  * @var <Tabs>
  */
@@ -10,6 +18,7 @@ let tabs = {};
  * @class
  */
 const Tab = class {
+
     /**
      * Constructor.
      * @constructor
@@ -20,6 +29,8 @@ const Tab = class {
         this.id = id;
         //Blocked counter
         this.counter = 0;
+        //Whether script successfully injected
+        this.injected = false;
         //If next attempt is allowed
         this.allowOnce = false;
         //Communication pipes
@@ -27,6 +38,7 @@ const Tab = class {
         //Save to global variable
         tabs[this.id] = this;
     }
+
     /**
      * On disconnect event handler.
      * @method
@@ -49,6 +61,7 @@ const Tab = class {
      */
     _onMessage(msg) {
         if (msg && msg.cmd) {
+            let popupEvent = null;
             switch (msg.cmd) {
                 case "allow once used":
                     //Disable allow once in other frames
@@ -63,13 +76,30 @@ const Tab = class {
                             popups[key].pipe.postMessage({ cmd: "allow once used" });
                         }
                     }
+                    popupEvent = "revoke allow once";
                     break;
                 case "attempt blocked":
                     this.count();
                     break;
+                case "injected":
+                    this.injected = true;
+                    popupEvent = "revoke allow once";
+                    break;
+                default:
+                    //Ignore
+                    return;
+            }
+            //Dispatch the event to popup if needed
+            if (popupEvent) {
+                for (let i = 0; i < popups.length; i++) {
+                    if (popups[i].tab === this.id) {
+                        popups[i].pipe.postMessage({ cmd: popupEvent });
+                    }
+                }
             }
         }
     }
+
     /**
      * Handle connection from a new pipe.
      * @method
@@ -86,6 +116,7 @@ const Tab = class {
         this.pipes[id].onDisconnect.addListener(this._onDisconnect.bind(this, id));
         this.pipes[id].onMessage.addListener(this._onMessage.bind(this));
     }
+
     /**
      * Broadcast message to all frames.
      * @method
@@ -96,6 +127,7 @@ const Tab = class {
             this.pipes[key].postMessage({ cmd: msg });
         }
     }
+
     /**
      * Add one to counter, then update badge if needed.
      * @method
@@ -116,6 +148,7 @@ const Tab = class {
             this.close();
         }
     }
+
     /**
      * Force close this tab.
      * @method
@@ -123,6 +156,7 @@ const Tab = class {
     close() {
         chrome.tabs.remove(this.id);
     }
+
     /**
      * Shut down all communication pipes.
      * @method
@@ -132,6 +166,7 @@ const Tab = class {
             pipes[key].disconnect();
         }
     }
+
 };
 
 /**
@@ -144,6 +179,7 @@ let _popupsCounter = 0;
  * @class
  */
 const Popup = class {
+
     /**
      * Constructor.
      * @constructor
@@ -162,6 +198,7 @@ const Popup = class {
         //Save to global variable
         popups[this.id] = this;
     }
+
     /**
      * On disconnect event handler.
      * @method
@@ -185,20 +222,76 @@ const Popup = class {
                     if (!isNaN(id) && isFinite(id) && id !== chrome.tabs.TAB_ID_NONE) {
                         this.tab = id;
                     }
+                    //Send back init event
+                    let injected, allowOnce;
+                    if (tabs[this.tab]) {
+                        injected = tabs[this.tab].injected;
+                        allowOnce = tabs[this.tab].allowOnce;
+                    } else {
+                        injected = false; allowOnce = false;
+                    }
+                    this.pipe.postMessage({
+                        cmd: "init",
+                        injected: injected,
+                        allowOnce: allowOnce,
+                        closeOnSpam: closeOnSpam,
+                    });
                     break;
+
                 case "allow once":
                     if (this.tab !== null && tabs[this.tab]) {
+                        tabs[this.tab].allowOnce = true;
                         tabs[this.tab].broadcast("allow once");
+                        //Update badge
+                        chrome.browserAction.setBadgeBackgroundColor({
+                            color: "green",
+                            tabId: this.tab,
+                        });
+                        chrome.browserAction.setBadgeText({
+                            text: "OFF",
+                            tabId: this.tab,
+                        });
                     }
+                    //Echo event back
+                    this.pipe.postMessage({ cmd: "allow once" });
                     break;
                 case "revoke allow once":
                     if (this.tab !== null && tabs[this.tab]) {
+                        tabs[this.tab].allowOnce = false;
+                        tabs[this.tab].counter = -1;
+                        tabs[this.tab].count();
                         tabs[this.tab].broadcast("revoke allow once");
                     }
+                    this.pipe.postMessage({ cmd: "revoke allow once" });
+                    break;
+
+                case "disable close on spam":
+                    closeOnSpam = false;
+                    chrome.storage.sync.set({ closeOnSpam: closeOnSpam });
+                    setTimeout(() => {
+                        //Prevent going over sync storage throughput
+                        if (popups[this.id] === this) {
+                            this.pipe.postMessage({ cmd: "disable close on spam" });
+                        }
+                    }, 1000);
+                    break;
+                case "enable close on spam":
+                    closeOnSpam = true;
+                    chrome.storage.sync.set({ closeOnSpam: closeOnSpam });
+                    setTimeout(() => {
+                        if (popups[this.id] === this) {
+                            this.pipe.postMessage({ cmd: "enable close on spam" });
+                        }
+                    }, 1000);
+                    break;
+
+                default:
+                    //Ignore
                     break;
             }
         }
     }
+
 };
 
 /**
@@ -214,7 +307,20 @@ let closeOnSpam = false;
 //Fetch settings
 chrome.storage.sync.get("closeOnSpam", (items) => {
     if (!chrome.runtime.lastError) {
-        closeOnSpam = items.closeOnSpam === true;
+        //Default to activated
+        closeOnSpam = items.closeOnSpam !== false;
+    }
+});
+
+//Bind sync handler
+chrome.storage.onChanged.addListener((change) => {
+    if (change.closeOnSpam) {
+        closeOnSpam = change.closeOnSpam.newValue !== false;
+        //Dispatch to every popup
+        const e = (closeOnSpam ? "enable" : "disable") + " close on spam";
+        for (let i = 0; i < popups.length; i++) {
+            popups[i].pipe.postMessage({ cmd: e });
+        }
     }
 });
 

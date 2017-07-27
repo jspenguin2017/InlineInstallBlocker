@@ -24,6 +24,11 @@ const payload = () => {
     const dispatchEvent = window.dispatchEvent.bind(window);
     const CustomEvent = window.CustomEvent.bind(window);
     window.addEventListener(magic, (e) => {
+
+
+        console.log("event received", e.detail);
+
+
         switch (e.detail) {
             case "allow once":
                 allowOnce = true;
@@ -43,14 +48,10 @@ const payload = () => {
     const install = (...args) => {
         if (allowOnce) {
             allowOnce = false;
-            dispatchEvent(new CustomEvent(magic, {
-                detail: "allow once used",
-            }));
+            dispatchEvent(new CustomEvent(magic, { detail: "allow once used" }));
             return _install(...args);
         } else {
-            dispatchEvent(new CustomEvent(magic, {
-                detail: "attempt blocked",
-            }));
+            dispatchEvent(new CustomEvent(magic, { detail: "attempt blocked" }));
         }
     };
     window.chrome.webstore.install = install;
@@ -68,6 +69,10 @@ const payload = () => {
         }
     };
     window.Function.prototype.toString = toString;
+
+    //Let backround page know script is injected
+    dispatchEvent(new CustomEvent(magic, { detail: "injected" }));
+
 };
 
 //Inject payload
