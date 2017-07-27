@@ -27,9 +27,10 @@
          * @param {float} a - The first float.
          * @param {float} b - The second float.
          * @param {float} [t=Math.TOLERANCE] - The tolerance.
-         * @return {boolean} Whether two floats match within tolerance.
+         * @return {boolean} Whether the two floats match within tolerance.
          */
         Math.compare = (a, b, t = Math.TOLERANCE) => Math.abs(a - b) < t;
+
         /**
          * 2 dimensional vector.
          * @class
@@ -46,6 +47,7 @@
                 this.y = y;
             }
         };
+
         /**
          * Matrix.
          * @class
@@ -87,6 +89,7 @@
                             continue outmost;
                         }
                     }
+
                     //Scale the row
                     if (!Math.compare(this.data[leading][col], 1)) {
                         const factor = this.data[leading][col];
@@ -94,6 +97,7 @@
                             this.data[leading][col] /= factor;
                         }
                     }
+
                     //Zero out other rows
                     for (let row = 0; row < this.rowCount; row++) {
                         if (row === leading || Math.compare(this.data[row][col], 0)) {
@@ -104,6 +108,7 @@
                             this.data[row][c] -= this.data[leading][c] * factor;
                         }
                     }
+
                     //Debug log
                     //console.table(this.data);
                     //Change leading counter
@@ -113,6 +118,7 @@
                 }
             }
         };
+
         /**
          * Create a curve generator that generates a quadratic function passing through 3 points.
          * https://math.stackexchange.com/questions/245835
@@ -135,6 +141,7 @@
             m.rref();
             //Debug log
             //console.table(m.data);
+
             {
                 //Verify that I have a matrix that represents a unique solution
                 let l = 0;
@@ -148,10 +155,13 @@
                     l++;
                 }
             }
+
             //Save closure data and deallocate matrix
             const a = m.data[0][3], b = m.data[1][3], c = m.data[2][3];
             //Debug log
             //console.log(a, b, c);
+
+            //Deallocate matrix and return generator
             m = undefined;
             return (x) => a * (x ** 2) + b * x + c;
         };
@@ -163,9 +173,9 @@
          * Draw a curve onto a context, the line style must be set in advance.
          * @function
          * @param {2DContext} context - The 2d context.
-         * @param {Function} generator - A generator function.
-         * @param {integer} from - Start pixel.
-         * @param {integer} to - End pixel.
+         * @param {Function} generator - The generator function.
+         * @param {integer} from - Start x value.
+         * @param {integer} to - End x value.
          * @param {integer} [step=1] - Step.
          */
         const drawCurve = (context, generator, from, to, step = 1) => {
@@ -185,6 +195,7 @@
     <p id="mousePos" style="position:absolute; left:calc(var(--scale) * 128px + 40px); top:8px; margin:0;">(0, 0)</p>
     <canvas height="128" width="128" style="width:calc(var(--scale) * 128px); height:calc(var(--scale) * 128px); image-rendering:pixelated;"></canvas>
     <script>
+        //Get canvas and context
         const canvas = document.querySelector("canvas");
         const context = canvas.getContext("2d");
 
@@ -206,7 +217,8 @@
             });
         }
 
-        switch (1) {
+        switch (1) { //Hard code the icon to draw here
+
             case 0:
 
                 //Icon
