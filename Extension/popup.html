@@ -59,18 +59,13 @@
         /* Buttons */
         button {
             color: white;
-            background-color: #808080;
-            border-radius: 3px;
+            border-radius: 4px;
             border: none;
             padding: 10px;
         }
 
             button:active {
                 box-shadow: inset 7px 7px 5px rgba(0, 0, 0, .125);
-            }
-
-            button:hover {
-                background-color: #707070;
             }
 
             button:focus {
@@ -109,12 +104,12 @@
     <section id="loading">
         <img src="loading.png" alt="loading" />
     </section>
-    <!-- First section -->
+    <!-- First part -->
     <div id="not-injected" class="background-red" style="display:none;">
         <p>
             Not activated on this page
             <br /><br />
-            This page loaded before this extension or this page is protected.
+            This page loaded before this extension or this page is protected
         </p>
     </div>
     <div id="blocking" class="background-green">
@@ -125,7 +120,7 @@
         <p>Allowing next inline install attempt</p>
         <button class="button-green">Revoke permission</button>
     </div>
-    <!-- Second section -->
+    <!-- Second part -->
     <div id="force-close-on" class="background-green">
         <p>Force close tabs that requested inline install 10 times</p>
         <button class="button-red">Enabled, click to disable</button>

@@ -24,45 +24,52 @@ const hide = (id) => {
 };
 
 /**
- * Set the element to show for the first section.
+ * Set the element to show for the first part.
  * @function
  * @param {string} id - The ID of the element to show.
  */
-const firstSection = (id) => {
+const firstPart = (id) => {
     hide("not-injected");
     hide("blocking");
     hide("allowing");
     show(id);
 };
 /**
- * Set the element to show for the second section.
+ * Set the element to show for the second part.
  * @function
  * @param {string} id - The ID of the element to show.
  */
-const secondSection = (id) => {
+const secondPart = (id) => {
     hide("force-close-on");
     hide("force-close-off");
     show(id);
 };
 
-//Fetch current tab ID
+//Initialize
 (new Promise((resolve, reject) => {
+    //Fetch current tab ID
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (chrome.runtime.lastError) {
+            //Not handled as I think this will never happen under reasonable circumstances
             reject(lastError);
         } else {
             resolve(tabs[0].id);
         }
     });
 })).then((id) => {
-
-    //Connect to background page
+    //Connect to background script
     const pipe = chrome.runtime.connect({ name: "popup" });
-    //Tell background which tab am I for
+    //Tell background script which tab I am for
     pipe.postMessage({ cmd: "set tab id", id: id });
 
     //Bind event handler
     pipe.onMessage.addListener((msg) => {
+        //Check if the event is valid
+        if (!msg || !msg.cmd) {
+            return;
+        }
+
+        //Handle event
         switch (msg.cmd) {
             case "init":
                 //First part
@@ -102,11 +109,12 @@ const secondSection = (id) => {
                 //Ignore
                 return;
         }
+
         //Hide loading overlay
         hide("loading");
     });
 
-    //Bind DOM event handlers
+    //First part
     document.querySelector("#blocking > button").addEventListener("click", () => {
         show("loading");
         pipe.postMessage({ cmd: "allow once" });
@@ -116,6 +124,7 @@ const secondSection = (id) => {
         pipe.postMessage({ cmd: "revoke allow once" });
     });
 
+    //Second part
     document.querySelector("#force-close-on > button").addEventListener("click", () => {
         show("loading");
         pipe.postMessage({ cmd: "disable close on spam" });
@@ -124,5 +133,4 @@ const secondSection = (id) => {
         show("loading");
         pipe.postMessage({ cmd: "enable close on spam" });
     });
-
 });

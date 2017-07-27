@@ -3,8 +3,7 @@
 //The communication key
 const magic = "" + Math.random() + Math.random();
 
-//Establish communication channels
-//The content script only serve as a bridge between background script and page script
+//Establish communication bridge
 const pipe = chrome.runtime.connect({ name: "content" });
 pipe.onMessage.addListener((msg) => {
     dispatchEvent(new CustomEvent(magic, { detail: msg.cmd }));
@@ -15,20 +14,16 @@ addEventListener(magic, (e) => {
 
 //Payload to inject
 const payload = () => {
-
     //Temporary allow flag
     let allowOnce = false;
 
-    //Establish communication channel, cache pointers to critical functions for security
+    //Cache pointers to critical functions for security
     const magic = "${magic}";
     const dispatchEvent = window.dispatchEvent.bind(window);
     const CustomEvent = window.CustomEvent.bind(window);
+
+    //Bind event handler
     window.addEventListener(magic, (e) => {
-
-
-        console.log("event received", e.detail);
-
-
         switch (e.detail) {
             case "allow once":
                 allowOnce = true;
@@ -70,12 +65,11 @@ const payload = () => {
     };
     window.Function.prototype.toString = toString;
 
-    //Let backround page know script is injected
+    //Let backround script know page script is injected
     dispatchEvent(new CustomEvent(magic, { detail: "injected" }));
-
 };
 
-//Inject payload
+//Inject page script
 const script = document.createElement("script");
 script.textContent = "(" + payload.toString().replace("${magic}", magic) + ")();";
 document.documentElement.prepend(script);
