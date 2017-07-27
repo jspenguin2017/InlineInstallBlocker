@@ -75,19 +75,19 @@ const secondPart = (id) => {
                 //First part
                 if (msg.injected) {
                     if (msg.allowOnce) {
-                        firstSection("allowing");
+                        firstPart("allowing");
                     } else {
-                        firstSection("blocking");
+                        firstPart("blocking");
                     }
                 } else {
-                    firstSection("not-injected");
+                    firstPart("not-injected");
                 }
 
                 //Second part
                 if (msg.closeOnSpam) {
-                    secondSection("force-close-on");
+                    secondPart("force-close-on");
                 } else {
-                    secondSection("force-close-off");
+                    secondPart("force-close-off");
                 }
                 break;
 
@@ -99,10 +99,10 @@ const secondPart = (id) => {
                 break;
 
             case "disable close on spam":
-                secondSection("force-close-off");
+                secondPart("force-close-off");
                 break;
             case "enable close on spam":
-                secondSection("force-close-on");
+                secondPart("force-close-on");
                 break;
 
             default:

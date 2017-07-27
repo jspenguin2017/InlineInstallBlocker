@@ -324,9 +324,9 @@ const Popup = class {
 
             case "disable close on spam":
                 closeOnSpam = false;
-                chrome.storage.sync.set({ closeOnSpam: closeOnSpam });
+                //Add a delay to prevent going over sync storage throughput
                 setTimeout(() => {
-                    //Prevent going over sync storage throughput
+                    chrome.storage.sync.set({ closeOnSpam: closeOnSpam });
                     if (popups[this.key] === this) {
                         this.pipe.postMessage({ cmd: "disable close on spam" });
                     }
@@ -335,8 +335,8 @@ const Popup = class {
 
             case "enable close on spam":
                 closeOnSpam = true;
-                chrome.storage.sync.set({ closeOnSpam: closeOnSpam });
                 setTimeout(() => {
+                    chrome.storage.sync.set({ closeOnSpam: closeOnSpam });
                     if (popups[this.key] === this) {
                         this.pipe.postMessage({ cmd: "enable close on spam" });
                     }
