@@ -327,9 +327,6 @@ const Popup = class {
                 //Add a delay to prevent going over sync storage throughput
                 setTimeout(() => {
                     chrome.storage.sync.set({ closeOnSpam: closeOnSpam });
-                    if (popups[this.key] === this) {
-                        this.pipe.postMessage({ cmd: "disable close on spam" });
-                    }
                 }, 1000);
                 break;
 
@@ -337,9 +334,6 @@ const Popup = class {
                 closeOnSpam = true;
                 setTimeout(() => {
                     chrome.storage.sync.set({ closeOnSpam: closeOnSpam });
-                    if (popups[this.key] === this) {
-                        this.pipe.postMessage({ cmd: "enable close on spam" });
-                    }
                 }, 1000);
                 break;
 
