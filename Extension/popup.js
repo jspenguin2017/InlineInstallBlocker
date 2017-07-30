@@ -88,10 +88,10 @@ const secondPart = (id) => {
                 break;
 
             case "revoke allow once":
-                firstSection("blocking");
+                firstPart("blocking");
                 break;
             case "allow once":
-                firstSection("allowing");
+                firstPart("allowing");
                 break;
 
             case "disable close on spam":

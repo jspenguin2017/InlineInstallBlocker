@@ -71,6 +71,6 @@ const payload = `(() => {
 
 //Inject page script
 const script = document.createElement("script");
-script.textContent = payload";
+script.textContent = payload;
 document.documentElement.prepend(script);
 script.remove();
