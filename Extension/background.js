@@ -37,11 +37,6 @@ const Tab = class {
          */
         this.counter = 0;
         /**
-         * Whether page script was successfully injected.
-         * @property @var {boolean}
-         */
-        this.injected = false;
-        /**
          * Whether next inline install attempt is allowed.
          * @property @var {boolean}
          */
@@ -101,7 +96,6 @@ const Tab = class {
                 break;
 
             case "injected":
-                this.injected = true;
                 //Dispatch event to popup, just in case
                 popupEvent = "revoke allow once";
                 break;
@@ -181,17 +175,6 @@ const Tab = class {
     close() {
         chrome.tabs.remove(this.id);
     }
-
-    /**
-     * Shut down all communication pipes.
-     * Never used for now.
-     * @method
-     */
-    dispose() {
-        for (let key in pipes) {
-            pipes[key].disconnect();
-        }
-    }
 };
 
 /**
@@ -270,10 +253,11 @@ const Popup = class {
                 //Send back init event
                 let injected, allowOnce;
                 if (tabs[this.tab]) {
-                    injected = tabs[this.tab].injected;
+                    injected = true;
                     allowOnce = tabs[this.tab].allowOnce;
                 } else {
-                    injected = false; allowOnce = false;
+                    injected = false;
+                    allowOnce = false;
                 }
                 this.pipe.postMessage({
                     cmd: "init",
@@ -325,6 +309,7 @@ const Popup = class {
             case "disable close on spam":
                 closeOnSpam = false;
                 //Add a delay to prevent going over sync storage throughput
+                //Loading overlay will show during this delay
                 setTimeout(() => {
                     chrome.storage.sync.set({ closeOnSpam: closeOnSpam });
                 }, 1000);

@@ -7,9 +7,7 @@
  */
 const show = (id) => {
     const e = document.getElementById(id);
-    if (e) {
-        e.style.display = "";
-    }
+    e && (e.style.display = "");
 };
 /**
  * Hide an element.
@@ -18,9 +16,7 @@ const show = (id) => {
  */
 const hide = (id) => {
     const e = document.getElementById(id);
-    if (e) {
-        e.style.display = "none";
-    }
+    e && (e.style.display = "none");
 };
 
 /**
@@ -50,7 +46,7 @@ const secondPart = (id) => {
     //Fetch current tab ID
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (chrome.runtime.lastError) {
-            //Not handled as I think this will never happen under reasonable circumstances
+            //Not handled as I think this will never happen
             reject(lastError);
         } else {
             resolve(tabs[0].id);

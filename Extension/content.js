@@ -13,7 +13,7 @@ addEventListener(magic, (e) => {
 });
 
 //Payload to inject
-const payload = () => {
+const payload = `(() => {
     //Temporary allow flag
     let allowOnce = false;
 
@@ -67,10 +67,10 @@ const payload = () => {
 
     //Let backround script know page script is injected
     dispatchEvent(new CustomEvent(magic, { detail: "injected" }));
-};
+})();`;
 
 //Inject page script
 const script = document.createElement("script");
-script.textContent = "(" + payload.toString().replace("${magic}", magic) + ")();";
+script.textContent = payload";
 document.documentElement.prepend(script);
 script.remove();

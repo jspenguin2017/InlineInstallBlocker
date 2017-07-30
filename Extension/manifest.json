@@ -26,7 +26,7 @@
       "run_at": "document_start"
     }
   ],
-  "description": "An inline install blocker for Chrome and Chromium.",
+  "description": "An inline install blocker for Chromium and Chrome.",
   "homepage_url": "https://github.com/jspenguin2017/InlineInstallBlocker/",
   "icons": {
     "128": "icon.png"
