@@ -1,0 +1,14 @@
+<!-- More information is provided, faster will your issue be solved. 
+
+Please provide at least: 
+- A test link on which the issue can be reproduced
+- A quick explanation about what went wrong
+
+Please consider to provide: 
+- A screenshot of the problem
+- A step by step reproduction guide
+- A list of your other extensions
+- The version of your Chromium or Chrome
+- The name and version of your operating system
+
+Type below this line -->
