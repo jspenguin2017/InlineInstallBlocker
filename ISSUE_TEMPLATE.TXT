@@ -11,4 +11,4 @@ Please consider to provide:
 - The version of your Chromium or Chrome
 - The name and version of your operating system
 
-Type below this line -->
+PLEASE TYPE BELOW THIS LINE -->
