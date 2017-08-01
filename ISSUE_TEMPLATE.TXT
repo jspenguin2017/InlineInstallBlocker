@@ -1,5 +1,7 @@
 <!-- More information is provided, faster will your issue be solved. 
 
+If you are reporting a problem... 
+
 Please provide at least: 
 - A test link on which the issue can be reproduced
 - A quick explanation about what went wrong
@@ -10,5 +12,9 @@ Please consider to provide:
 - A list of your other extensions
 - The version of your Chromium or Chrome
 - The name and version of your operating system
+
+If you have a question, suggestion, or something else that you want me to know...
+
+Please explain thoroughly what you are looking for. 
 
 PLEASE TYPE BELOW THIS LINE -->
