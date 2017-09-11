@@ -53,7 +53,7 @@ addEventListener(magic, (e) => {
                 if (args[2] instanceof window.Function) {
                     setTimeout(() => {
                         args[2]("The user canceled the operation.", "userCanceled");
-                    }, (50 * random() + 50) | 0);
+                    }, (50 + 50 * random()) | 0);
                 }
             }
         };
