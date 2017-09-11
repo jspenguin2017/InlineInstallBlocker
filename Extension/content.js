@@ -22,6 +22,8 @@ addEventListener(magic, (e) => {
         const magic = "${magic}";
         const dispatchEvent = window.dispatchEvent.bind(window);
         const CustomEvent = window.CustomEvent.bind(window);
+        const setTimeout = window.setTimeout.bind(window);
+        const random = window.Math.random.bind(window.Math);
 
         //Bind event handler
         window.addEventListener(magic, (e) => {
@@ -48,6 +50,11 @@ addEventListener(magic, (e) => {
                 return _install(...args);
             } else {
                 dispatchEvent(new CustomEvent(magic, { detail: "attempt blocked" }));
+                if (args[2] instanceof window.Function) {
+                    setTimeout(() => {
+                        args[2]("The user canceled the operation.", "userCanceled");
+                    }, (50 * random() + 50) | 0);
+                }
             }
         };
         window.chrome.webstore.install = install;
