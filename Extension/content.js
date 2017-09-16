@@ -1,7 +1,9 @@
 "use strict";
 
 //The communication key
-const magic = "InlineInstallBlockerEvent_" + Math.random().toString(36).substring(2);
+const magic = "InlineInstallBlockerInternal_" +
+    Math.random().toString(36).substring(2) +
+    Math.random().toString(36).substring(2);
 
 //Establish communication bridge
 const pipe = chrome.runtime.connect({ name: "content" });
