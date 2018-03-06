@@ -106,7 +106,7 @@ const Tab = class {
 
         //Dispatch the event to popup if needed
         if (popupEvent) {
-            for (let key in popup) {
+            for (let key in popups) {
                 if (popups[key].tab === this.id) {
                     popups[key].pipe.postMessage({ cmd: popupEvent });
                 }
