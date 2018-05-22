@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="author" content="jspenguin2017" />
-    <title>assets</title>
+    <title>Assets Generator</title>
+
     <style>
         /* Debug scalling */
         :root {
@@ -14,232 +15,41 @@
         const scale = getComputedStyle(document.documentElement)
             .getPropertyValue("--scale");
     </script>
-    <script>
-        // Math functions
-
-        /**
-         * The tolerance in float comparison.
-         * @const {float}
-         */
-        Math.TOLERANCE = 1e-7;
-        /**
-         * Compare two floats with tolerance.
-         * @function
-         * @param {float} a - The first float.
-         * @param {float} b - The second float.
-         * @param {float} [t=Math.TOLERANCE] - The tolerance.
-         * @return {boolean} Whether the two floats match within tolerance.
-         */
-        Math.compare = (a, b, t = Math.TOLERANCE) => Math.abs(a - b) < t;
-
-        /**
-         * 2 dimensional vector.
-         * @class
-         */
-        const Vector2D = class {
-            /**
-             * Constructor.
-             * @constructor
-             * @param {integer} x - The x value.
-             * @param {integer} y - The y value.
-             */
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-            }
-        };
-
-        /**
-         * Matrix.
-         * @class
-         */
-        const Matrix = class {
-            /**
-             * Constructor.
-             * @constructor
-             * @param {Array.<integer>} ...args - Matrix data.
-             */
-            constructor(...args) {
-                this.data = args;
-                this.rowCount = this.data.length;
-                this.colCount = this.rowCount ? this.data[0].length : 0;
-            }
-            /**
-             * Mutate this matrix, set it to its reduced row echelon form.
-             * This method is not optimized.
-             * @method
-             */
-            rref() {
-                let leading = 0;
-                outmost: for (let col = 0; col < this.colCount; col++) {
-                    // Find first non-zero entry and put it to top
-                    if (Math.compare(this.data[leading][col], 0)) {
-                        outer: {
-                            for (let row = leading; row < this.rowCount; row++) {
-                                if (!Math.compare(this.data[row][col], 0)) {
-                                    // Swap row
-                                    if (row !== leading) {
-                                        [this.data[leading], this.data[row]] =
-                                            [this.data[row], this.data[leading]];
-                                    }
-                                    // Exit
-                                    break outer;
-                                }
-                            }
-                            // Column filled with zeros
-                            continue outmost;
-                        }
-                    }
-
-                    // Scale the row
-                    if (!Math.compare(this.data[leading][col], 1)) {
-                        const factor = this.data[leading][col];
-                        for (let col = 0; col < this.colCount; col++) {
-                            this.data[leading][col] /= factor;
-                        }
-                    }
-
-                    // Zero out other rows
-                    for (let row = 0; row < this.rowCount; row++) {
-                        if (row === leading || Math.compare(this.data[row][col], 0)) {
-                            continue;
-                        }
-                        const factor = this.data[row][leading];
-                        for (let c = 0; c < this.colCount; c++) {
-                            this.data[row][c] -= this.data[leading][c] * factor;
-                        }
-                    }
-
-                    // Debug log
-                    // console.table(this.data);
-                    // Change leading counter
-                    if (++leading >= this.rowCount) {
-                        break outmost;
-                    }
-                }
-            }
-        };
-
-        /**
-         * Create a curve generator that generates a quadratic function passing
-         * through 3 points.
-         * https://math.stackexchange.com/questions/245835
-         * @function
-         * @param {Vector2D} pt1 - The first point.
-         * @param {Vector2D} pt2 - The second point.
-         * @param {Vector2D} pt3 - The third point.
-         * @return {Function} The generator.
-         ** @param {integer} x - The x value.
-         ** @return {integer} The y value.
-         */
-        const createQuadraticCurveGenerator = (pt1, pt2, pt3) => {
-            let m = new Matrix(
-                [pt1.x ** 2, pt1.x, 1, pt1.y],
-                [pt2.x ** 2, pt2.x, 1, pt2.y],
-                [pt3.x ** 2, pt3.x, 1, pt3.y],
-            );
-            // Debug log
-            // console.table(m.data);
-            m.rref();
-            // Debug log
-            // console.table(m.data);
-
-            {
-                // Verify that I have a matrix that represents a unique solution
-                let l = 0;
-                for (let i = 0; i < 3; i++) {
-                    for (let j = 0; j < 3; j++) {
-                        if (!Math.compare(m.data[i][j], (i === l && j === l) | 0)) {
-                            throw new Error("Could not find a quadratic " +
-                                "equation that passes through these points.");
-                        }
-                    }
-                    l++;
-                }
-            }
-
-            // Save closure data and deallocate matrix
-            const a = m.data[0][3], b = m.data[1][3], c = m.data[2][3];
-            // Debug log
-            // console.log(a, b, c);
-
-            // Deallocate matrix and return generator
-            m = undefined;
-            return (x) => a * (x ** 2) + b * x + c;
-        };
-    </script>
-    <script>
-        // Graphics functions
-
-        /**
-         * Draw a curve onto a context, the line style must be set in advance.
-         * @function
-         * @param {2DContext} context - The 2d context.
-         * @param {Function} generator - The generator function.
-         * @param {integer} from - Start x value.
-         * @param {integer} to - End x value.
-         * @param {integer} [step=1] - Step.
-         */
-        const drawCurve = (context, generator, from, to, step = 1) => {
-            context.beginPath();
-            context.moveTo(from, generator(from));
-            from += step;
-            for (; from <= to; from += step) {
-                context.lineTo(from, generator(from));
-                // Debug log
-                // console.log(from, generator(from));
-            }
-            context.stroke();
-        };
-    </script>
 </head>
 <body style="background-color:ghostwhite;">
     <p id="mousePos" style="position:absolute; left:calc(var(--scale) * 128px + 40px); top:8px; margin:0;">(0, 0)</p>
     <canvas height="128" width="128" style="width:calc(var(--scale) * 128px); height:calc(var(--scale) * 128px); image-rendering:pixelated;"></canvas>
+
     <script>
-        // Get canvas and context
         const canvas = document.querySelector("canvas");
         const context = canvas.getContext("2d");
 
         {
-            // Show coordinate on mouse move
             let locked = false;
             const rect = canvas.getBoundingClientRect();
             const update = (e) => {
                 const x = ((e.clientX - rect.left) / scale) | 0;
                 const y = ((e.clientY - rect.top) / scale) | 0;
-                document.getElementById("mousePos").innerHTML = `(${x}, ${y})`;
+                document.getElementById("mousePos").innerHTML =
+                    "(" + x.toString() + ", " + y.toString() + ")";
             };
+
             canvas.addEventListener("mousemove", (e) => {
-                !locked && update(e);
+                if (!locked) {
+                    update(e);
+                }
             });
             canvas.addEventListener("click", (e) => {
-                update(e);
                 locked = !locked;
+                update(e);
             });
         }
 
-        switch (1) { // Hard code the icon to draw here
-
-            case 0:
-
-                // Icon
-
-                // Initialize style
+        switch (0) { // Hard code the asset to draw here
+            case 0: // Icon
                 context.lineWidth = 7;
 
-                /*
-                // Having a control point actually works better... It allows me
-                // to "rotate" the curve to make it more natural
-                // I will just go use the built in function
-                drawCurve(
-                    context,
-                    createQuadraticCurveGenerator(new Vector2D(0, 50), new Vector2D(43, 37), new Vector2D(64, 0)),
-                    0, 128,
-                );
-                */
-
-                // Draw shield
+                // Shield
                 context.beginPath();
                 context.moveTo(5, 40);
                 context.quadraticCurveTo(30, 30, 64, 5);
@@ -252,7 +62,7 @@
                 context.strokeStyle = "black";
                 context.stroke();
 
-                // Draw download arrow
+                // Download arrow
                 context.beginPath();
                 context.moveTo(50, 30);
                 context.lineTo(128 - 50, 30);
@@ -262,17 +72,13 @@
                 context.lineTo(35, 80);
                 context.lineTo(50, 80);
                 context.closePath();
-                context.strokeStyle = "black";
+                context.fillStyle = "black";
                 context.fill();
 
                 break;
 
 
-            case 1:
-
-                // Load circle
-
-                // Initialize style
+            case 1: // Load circle
                 context.lineWidth = 10;
 
                 // Gray part
@@ -288,8 +94,6 @@
                 context.stroke();
 
                 break;
-
-
         }
     </script>
 </body>
