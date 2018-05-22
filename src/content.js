@@ -52,7 +52,7 @@ const code = () => {
             if (args[2] instanceof window.Function) {
                 setTimeout(() => {
                     args[2]("User cancelled install", "userCancelled");
-                }, (50 + 50 * random()) | 0);
+                }, (500 + 500 * random()) | 0);
             }
         }
     };

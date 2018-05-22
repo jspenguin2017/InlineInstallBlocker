@@ -46,16 +46,12 @@ const secondPart = (id) => {
     show(id);
 };
 
-
-(new Promise((resolve, reject) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (chrome.runtime.lastError) {
-            reject(lastError);
-        } else {
-            resolve(tabs[0].id);
-        }
-    });
-})).then((id) => {
+/**
+ * Initialize the popup.
+ * @function
+ * @param {integer} id - The ID of the tab that this popup is for.
+ */
+const init = (id) => {
     const pipe = chrome.runtime.connect({ name: "popup" });
     pipe.postMessage({ cmd: "set tab id", id: id });
 
@@ -121,4 +117,11 @@ const secondPart = (id) => {
         show("loading");
         pipe.postMessage({ cmd: "enable close on spam" });
     });
+}
+
+
+chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (!chrome.runtime.lastError) {
+        init(tabs[0].id);
+    }
 });
