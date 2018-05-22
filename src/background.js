@@ -217,6 +217,7 @@ const Popup = class {
             return;
         }
 
+        let t;
         switch (msg.cmd) {
             case "set tab id":
                 if (
@@ -253,7 +254,7 @@ const Popup = class {
                     return;
                 }
 
-                let t = tabs.get(this.tab);
+                t = tabs.get(this.tab);
                 t.allowOnce = true;
                 t.broadcast("allow once");
 
@@ -274,7 +275,7 @@ const Popup = class {
                     return;
                 }
 
-                let t = tabs.get(this.tab);
+                t = tabs.get(this.tab);
                 t.allowOnce = false;
                 t.broadcast("revoke allow once");
 
