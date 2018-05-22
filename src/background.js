@@ -2,21 +2,6 @@
 
 
 /**
- * Check last error and do nothing.
- * Bind this as callback when all possible errors can be safely ignored.
- * Never used for now.
- * @function
- */
-const noop = () => {
-    void chrome.runtime.lastError;
-};
-
-/**
- * Tabs container.
- * @var {Object.<Tab>}
- */
-let tabs = {};
-/**
  * Tab class.
  * @class
  */
@@ -167,11 +152,6 @@ const Tab = class {
 };
 
 /**
- * Popup container.
- * @var {Object.<Popup>}
- */
-const popups = {};
-/**
  * Popup key counter.
  * @private @var {integer}
  */
@@ -310,6 +290,19 @@ const Popup = class {
         }
     }
 };
+
+
+/**
+ * Tabs container.
+ * @var {Object.<Tab>}
+ */
+let tabs = {};
+/**
+ * Popup container.
+ * @var {Object.<Popup>}
+ */
+let popups = {};
+
 
 /**
  * The threathold for force closing.
