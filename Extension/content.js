@@ -54,7 +54,7 @@ addEventListener(magic, (e) => {
                 dispatchEvent(new CustomEvent(magic, { detail: "attempt blocked" }));
                 if (args[2] instanceof window.Function) {
                     setTimeout(() => {
-                        args[2]("The user canceled the operation.", "userCanceled");
+                        args[2]("User cancelled install", "userCancelled");
                     }, (50 + 50 * random()) | 0);
                 }
             }
