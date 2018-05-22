@@ -1,3 +1,6 @@
+/**
+ * The content script.
+ */
 "use strict";
 
 
@@ -17,6 +20,7 @@ addEventListener(magic, (e) => {
 
 
 const code = () => {
+    "use strict";
     let allowOnce = false;
 
     const magic = "{{magic}}";

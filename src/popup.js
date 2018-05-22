@@ -1,3 +1,6 @@
+/**
+ * The popup script.
+ */
 "use strict";
 
 
