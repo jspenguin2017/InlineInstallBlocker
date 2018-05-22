@@ -84,7 +84,8 @@ const code = () => {
     dispatchEvent(new CustomEvent(magic, { detail: "injected" }));
 };
 
-const script = document.createElement("script");
-script.textContent = "(" + code.replace("{{magic}}", magic) + ")();";
+let script = document.createElement("script");
+script.textContent = "(" + code.toString().replace("{{magic}}", magic) +
+    ")();";
 document.documentElement.prepend(script);
 script.remove();

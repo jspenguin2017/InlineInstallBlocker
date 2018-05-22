@@ -55,7 +55,7 @@ const secondPart = (id) => {
  * @param {integer} id - The ID of the tab that this popup is for.
  */
 const init = (id) => {
-    const pipe = chrome.runtime.connect({ name: "popup" });
+    let pipe = chrome.runtime.connect({ name: "popup" });
     pipe.postMessage({ cmd: "set tab id", id: id });
 
     pipe.onMessage.addListener((msg) => {

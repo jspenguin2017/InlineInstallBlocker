@@ -253,7 +253,7 @@ const Popup = class {
                     return;
                 }
 
-                const t = tabs.get(this.tab);
+                let t = tabs.get(this.tab);
                 t.allowOnce = true;
                 t.broadcast("allow once");
 
@@ -274,7 +274,7 @@ const Popup = class {
                     return;
                 }
 
-                const t = tabs.get(this.tab);
+                let t = tabs.get(this.tab);
                 t.allowOnce = false;
                 t.broadcast("revoke allow once");
 
