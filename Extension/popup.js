@@ -1,5 +1,6 @@
 "use strict";
 
+
 /**
  * Show an element.
  * @function
@@ -7,7 +8,9 @@
  */
 const show = (id) => {
     const e = document.getElementById(id);
-    e && (e.style.display = "");
+    if (e) {
+        e.style.display = "";
+    }
 };
 /**
  * Hide an element.
@@ -16,7 +19,9 @@ const show = (id) => {
  */
 const hide = (id) => {
     const e = document.getElementById(id);
-    e && (e.style.display = "none");
+    if (e) {
+        e.style.display = "none";
+    }
 };
 
 /**
@@ -41,34 +46,26 @@ const secondPart = (id) => {
     show(id);
 };
 
-//Initialize
+
 (new Promise((resolve, reject) => {
-    //Fetch current tab ID
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (chrome.runtime.lastError) {
-            //Not handled as I think this will never happen
             reject(lastError);
         } else {
             resolve(tabs[0].id);
         }
     });
 })).then((id) => {
-    //Connect to background script
     const pipe = chrome.runtime.connect({ name: "popup" });
-    //Tell background script which tab I am for
     pipe.postMessage({ cmd: "set tab id", id: id });
 
-    //Bind event handler
     pipe.onMessage.addListener((msg) => {
-        //Check if the event is valid
         if (!msg || !msg.cmd) {
             return;
         }
 
-        //Handle event
         switch (msg.cmd) {
             case "init":
-                //First part
                 if (msg.injected) {
                     if (msg.allowOnce) {
                         firstPart("allowing");
@@ -79,7 +76,6 @@ const secondPart = (id) => {
                     firstPart("not-injected");
                 }
 
-                //Second part
                 if (msg.closeOnSpam) {
                     secondPart("force-close-on");
                 } else {
@@ -102,15 +98,12 @@ const secondPart = (id) => {
                 break;
 
             default:
-                //Ignore
                 return;
         }
 
-        //Hide loading overlay
         hide("loading");
     });
 
-    //First part
     document.querySelector("#blocking > button").addEventListener("click", () => {
         show("loading");
         pipe.postMessage({ cmd: "allow once" });
@@ -120,7 +113,6 @@ const secondPart = (id) => {
         pipe.postMessage({ cmd: "revoke allow once" });
     });
 
-    //Second part
     document.querySelector("#force-close-on > button").addEventListener("click", () => {
         show("loading");
         pipe.postMessage({ cmd: "disable close on spam" });

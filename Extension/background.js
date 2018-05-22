@@ -1,5 +1,6 @@
 "use strict";
 
+
 /**
  * Check last error and do nothing.
  * Bind this as callback when all possible errors can be safely ignored.
@@ -47,7 +48,6 @@ const Tab = class {
          */
         this.pipes = {};
 
-        //Save self to global variable
         tabs[this.id] = this;
     }
 
@@ -57,9 +57,8 @@ const Tab = class {
      * @param {integer} id - The frame ID.
      */
     _onDisconnect(id) {
-        //Remove this pipe
         delete this.pipes[id];
-        //Remove self from global variable when all pipes are disconnected
+
         if (Object.keys(this.pipes).length === 0) {
             delete tabs[this.id];
         }
@@ -70,24 +69,19 @@ const Tab = class {
      * @param {Object} msg - The incoming message object.
      */
     _onMessage(msg) {
-        //Check if the event is valid
         if (!msg || !msg.cmd) {
             return;
         }
 
-        //The popup event to dispatch
         let popupEvent = null;
-
-        //Handle event
         switch (msg.cmd) {
             case "allow once used":
-                //Disable allow once in other frames
                 this.allowOnce = false;
                 this.broadcast("revoke allow once");
-                //Reset and redraw badge
+
                 this.counter = -1;
                 this.count();
-                //Dispatch event to popup
+
                 popupEvent = "revoke allow once";
                 break;
 
@@ -96,15 +90,13 @@ const Tab = class {
                 break;
 
             case "injected":
-                //Dispatch event to popup, just in case
                 popupEvent = "revoke allow once";
                 break;
+
             default:
-                //Ignore
                 return;
         }
 
-        //Dispatch the event to popup if needed
         if (popupEvent) {
             for (let key in popups) {
                 if (popups[key].tab === this.id) {
@@ -120,15 +112,12 @@ const Tab = class {
      * @param {Port} pipe - The new pipe.
      */
     connect(pipe) {
-        //Frame ID
         const id = pipe.sender.frameId;
 
-        //Disconnect if I somehow have another one
         if (this.pipes[id]) {
             this.pipes[id].disconnect();
         }
 
-        //Save pipe and bind event handlers
         this.pipes[id] = pipe;
         this.pipes[id].onDisconnect.addListener(this._onDisconnect.bind(this, id));
         this.pipes[id].onMessage.addListener(this._onMessage.bind(this));
@@ -150,7 +139,6 @@ const Tab = class {
      * @method
      */
     count() {
-        //Update badge
         if (++this.counter <= 1000) {
             chrome.browserAction.setBadgeBackgroundColor({
                 color: "darkred",
@@ -162,7 +150,6 @@ const Tab = class {
             });
         }
 
-        //Check spam threathold and force close tab if needed
         if (closeOnSpam && this.counter >= SPAM_THREATHOLD) {
             this.close();
         }
@@ -215,10 +202,9 @@ const Popup = class {
          */
         this.pipe = pipe;
 
-        //Bind event handlers
         this.pipe.onDisconnect.addListener(this._onDisconnect.bind(this));
         this.pipe.onMessage.addListener(this._onMessage.bind(this));
-        //Save self to global variable
+
         popups[this.key] = this;
     }
 
@@ -241,16 +227,13 @@ const Popup = class {
 
         switch (msg.cmd) {
             case "set tab id":
-                //Parse and save tab ID that this popup is for
                 const id = parseInt(msg.id);
                 if (!isNaN(id) && isFinite(id) && id !== chrome.tabs.TAB_ID_NONE) {
                     this.tab = id;
                 } else {
-                    //Tab ID not valid
                     return;
                 }
 
-                //Send back init event
                 let injected, allowOnce;
                 if (tabs[this.tab]) {
                     injected = true;
@@ -268,16 +251,13 @@ const Popup = class {
                 break;
 
             case "allow once":
-                //Check if tab is still valid
                 if (this.tab === null || !tabs[this.tab]) {
                     return;
                 }
 
-                //Dispatch event to tab
                 tabs[this.tab].allowOnce = true;
                 tabs[this.tab].broadcast("allow once");
 
-                //Update badge
                 chrome.browserAction.setBadgeBackgroundColor({
                     color: "green",
                     tabId: this.tab,
@@ -287,7 +267,6 @@ const Popup = class {
                     tabId: this.tab,
                 });
 
-                //Echo event back
                 this.pipe.postMessage({ cmd: "allow once" });
                 break;
 
@@ -299,7 +278,6 @@ const Popup = class {
                 tabs[this.tab].allowOnce = false;
                 tabs[this.tab].broadcast("revoke allow once");
 
-                //Reset and redraw badge
                 tabs[this.tab].counter = -1;
                 tabs[this.tab].count();
 
@@ -308,8 +286,8 @@ const Popup = class {
 
             case "disable close on spam":
                 closeOnSpam = false;
-                //Add a delay to prevent going over sync storage throughput
-                //Loading overlay will show during this delay
+                // Add a delay to prevent going over sync storage throughput
+                // Loading overlay will show during this delay
                 setTimeout(() => {
                     chrome.storage.sync.set({ closeOnSpam: closeOnSpam });
                 }, 1000);
@@ -323,7 +301,6 @@ const Popup = class {
                 break;
 
             default:
-                //Ignore
                 return;
         }
     }
@@ -339,12 +316,12 @@ const SPAM_THREATHOLD = 10;
  * @var {boolean}
  */
 let closeOnSpam = false;
-//Fetch settings
+
+
 chrome.storage.sync.get("closeOnSpam", (items) => {
     if (!chrome.runtime.lastError) {
-        //Default to activated
         closeOnSpam = items.closeOnSpam !== false;
-        //Dispatch event to popups
+
         const e = (closeOnSpam ? "enable" : "disable") + " close on spam";
         for (let key in popups) {
             popups[key].pipe.postMessage({ cmd: e });
@@ -352,11 +329,9 @@ chrome.storage.sync.get("closeOnSpam", (items) => {
     }
 });
 
-//Bind sync handler
 chrome.storage.onChanged.addListener((change) => {
     if (change.closeOnSpam) {
         closeOnSpam = change.closeOnSpam.newValue !== false;
-        //Dispatch event to popups
         const e = (closeOnSpam ? "enable" : "disable") + " close on spam";
         for (let key in popups) {
             popups[key].pipe.postMessage({ cmd: e });
@@ -364,27 +339,20 @@ chrome.storage.onChanged.addListener((change) => {
     }
 });
 
-//Bind event handler
 chrome.runtime.onConnect.addListener((pipe) => {
     if (pipe.name === "content") {
-        //From a content script
         if (pipe.sender && pipe.sender.tab && pipe.sender.tab.id !== chrome.tabs.TAB_ID_NONE) {
             const id = pipe.sender.tab.id;
-            //Add entry if this is a new tab
             if (!tabs[id]) {
                 new Tab(id);
             }
-            //Register this pipe
             tabs[id].connect(pipe);
         } else {
-            //Not a valid connection
             pipe.disconnect();
         }
     } else if (pipe.name === "popup") {
-        //From popup page
         new Popup(pipe);
     } else {
-        //Drop connection otherwise
         pipe.disconnect();
     }
 });
