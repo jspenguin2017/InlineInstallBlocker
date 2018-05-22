@@ -119,8 +119,10 @@ const Tab = class {
         }
 
         this.pipes[id] = pipe;
-        this.pipes[id].onDisconnect.addListener(this._onDisconnect.bind(this, id));
-        this.pipes[id].onMessage.addListener(this._onMessage.bind(this));
+        this.pipes[id].onDisconnect
+            .addListener(this._onDisconnect.bind(this, id));
+        this.pipes[id].onMessage
+            .addListener(this._onMessage.bind(this));
     }
 
     /**
@@ -228,7 +230,10 @@ const Popup = class {
         switch (msg.cmd) {
             case "set tab id":
                 const id = parseInt(msg.id);
-                if (!isNaN(id) && isFinite(id) && id !== chrome.tabs.TAB_ID_NONE) {
+                if (
+                    !isNaN(id) && isFinite(id) &&
+                    id !== chrome.tabs.TAB_ID_NONE
+                ) {
                     this.tab = id;
                 } else {
                     return;
@@ -341,7 +346,10 @@ chrome.storage.onChanged.addListener((change) => {
 
 chrome.runtime.onConnect.addListener((pipe) => {
     if (pipe.name === "content") {
-        if (pipe.sender && pipe.sender.tab && pipe.sender.tab.id !== chrome.tabs.TAB_ID_NONE) {
+        if (
+            pipe.sender && pipe.sender.tab &&
+            pipe.sender.tab.id !== chrome.tabs.TAB_ID_NONE
+        ) {
             const id = pipe.sender.tab.id;
             if (!tabs[id]) {
                 new Tab(id);
