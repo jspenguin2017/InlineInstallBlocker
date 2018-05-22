@@ -41,8 +41,9 @@ const Tab = class {
     }
 
     /**
-     * On disconnect event handler.
+     * Port disconnect event handler.
      * @private @method
+     * @listens Port.disconnect
      * @param {integer} id - The frame ID.
      */
     _onDisconnect(id) {
@@ -52,9 +53,11 @@ const Tab = class {
             tabs.delete(this.id);
         }
     }
+
     /**
-     * On message event handler.
+     * Port message event handler.
      * @private @method
+     * @listens Port.message
      * @param {Object} msg - The incoming message object.
      */
     _onMessage(msg) {
@@ -87,9 +90,9 @@ const Tab = class {
         }
 
         if (popupEvent) {
-            for (let v of popups.values()) {
-                if (v.tab === this.id) {
-                    v.pipe.postMessage({ cmd: popupEvent });
+            for (let popup of popups.values()) {
+                if (popup.tab === this.id) {
+                    popup.pipe.postMessage({ cmd: popupEvent });
                 }
             }
         }
@@ -118,8 +121,8 @@ const Tab = class {
      * @param {string} msg - The message to broadcast.
      */
     broadcast(msg) {
-        for (let v of this.pipes.values()) {
-            v.postMessage({ cmd: msg });
+        for (let frame of this.pipes.values()) {
+            frame.postMessage({ cmd: msg });
         }
     }
 
@@ -136,7 +139,7 @@ const Tab = class {
                 tabId: this.id,
             });
             chrome.browserAction.setBadgeText({
-                text: this.counter > 999 ? "999+" : this.counter.toString(),
+                text: (this.counter > 999 ? "999+" : this.counter.toString()),
                 tabId: this.id,
             });
         }
