@@ -44,15 +44,21 @@ const code = () => {
         }
     });
 
-    const _install = window.chrome.webstore.install.bind(window.chrome.webstore);
-    const _installStr = window.chrome.webstore.install.toString();
+    const _install = window.chrome.webstore.install
+        .bind(window.chrome.webstore);
+    const _installStr = _install.toString();
     const install = (...args) => {
         if (allowOnce) {
             allowOnce = false;
-            dispatchEvent(new CustomEvent(magic, { detail: "allow once used" }));
+            dispatchEvent(new CustomEvent(magic, {
+                detail: "allow once used",
+            }));
             return _install(...args);
+
         } else {
-            dispatchEvent(new CustomEvent(magic, { detail: "attempt blocked" }));
+            dispatchEvent(new CustomEvent(magic, {
+                detail: "attempt blocked",
+            }));
             if (args[2] instanceof window.Function) {
                 setTimeout(() => {
                     args[2]("User cancelled install", "userCancelled");
@@ -63,7 +69,7 @@ const code = () => {
     window.chrome.webstore.install = install;
 
     const _toString = window.Function.prototype.toString;
-    const _toStringStr = window.Function.prototype.toString.toString();
+    const _toStringStr = _toString.toString();
     const toString = function () {
         if (this === install) {
             return _installStr;
