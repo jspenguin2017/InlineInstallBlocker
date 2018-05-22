@@ -31,7 +31,7 @@ const Tab = class {
          */
         this.allowOnce = false;
         /**
-         * Communication pipes, one for each frame. Keys are frame ID.
+         * Communication pipes, one for each frame.
          * @property @var {Map.<integer, Port>}
          */
         this.pipes = new Map();
@@ -201,6 +201,7 @@ const Popup = class {
     /**
      * On disconnect event handler.
      * @private @method
+     * @listens Port.onDisconnect
      */
     _onDisconnect() {
         popups.delete(this.key);
@@ -208,6 +209,7 @@ const Popup = class {
     /**
      * On message event handler.
      * @private @method
+     * @listens Port.onMessage
      * @param {Object} msg - The incoming message object.
      */
     _onMessage(msg) {
@@ -286,8 +288,9 @@ const Popup = class {
                 closeOnSpam = false;
 
                 // Add a delay to prevent going over sync storage throughput
-                // Loading overlay will show during this delay
-                // The response is sent in chrome.storage.onChanged handler
+                //
+                // Loading overlay will show during this delay, the response
+                // is sent in chrome.storage.onChanged handler
                 setTimeout(() => {
                     chrome.storage.sync.set({ closeOnSpam: closeOnSpam });
                 }, 1000);
@@ -337,8 +340,8 @@ chrome.storage.sync.get("closeOnSpam", (items) => {
         closeOnSpam = items.closeOnSpam !== false;
 
         const e = (closeOnSpam ? "enable" : "disable") + " close on spam";
-        for (let v of popups.values()) {
-            v.pipe.postMessage({ cmd: e });
+        for (let popup of popups.values()) {
+            popup.pipe.postMessage({ cmd: e });
         }
     }
 });
@@ -346,9 +349,10 @@ chrome.storage.sync.get("closeOnSpam", (items) => {
 chrome.storage.onChanged.addListener((change) => {
     if (change.closeOnSpam) {
         closeOnSpam = change.closeOnSpam.newValue !== false;
+
         const e = (closeOnSpam ? "enable" : "disable") + " close on spam";
-        for (let v of popups.values()) {
-            v.pipe.postMessage({ cmd: e });
+        for (let popup of popups.values()) {
+            popup.pipe.postMessage({ cmd: e });
         }
     }
 });
@@ -361,7 +365,7 @@ chrome.runtime.onConnect.addListener((pipe) => {
         ) {
             const id = pipe.sender.tab.id;
             if (!tabs.has(id)) {
-                // Global variable is updated in the constructor
+                // The map tabs is updated in the constructor
                 new Tab(id);
             }
 
@@ -371,7 +375,7 @@ chrome.runtime.onConnect.addListener((pipe) => {
         }
 
     } else if (pipe.name === "popup") {
-        // Global variable is updated in the constructor
+        // The map popups is updated in the constructor
         new Popup(pipe);
 
     } else {
