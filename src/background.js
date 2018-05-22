@@ -43,7 +43,7 @@ const Tab = class {
     /**
      * Port disconnect event handler.
      * @private @method
-     * @listens Port.disconnect
+     * @listens Port.onDisconnect
      * @param {integer} id - The frame ID.
      */
     _onDisconnect(id) {
@@ -57,7 +57,7 @@ const Tab = class {
     /**
      * Port message event handler.
      * @private @method
-     * @listens Port.message
+     * @listens Port.onMessage
      * @param {Object} msg - The incoming message object.
      */
     _onMessage(msg) {
@@ -177,7 +177,7 @@ const Popup = class {
         /**
          * The ID of the tab that this popup is for.
          * Will be available later.
-         * @const {integer}
+         * @const {integer|null}
          */
         this.tab = null;
         /**
@@ -217,12 +217,12 @@ const Popup = class {
 
         switch (msg.cmd) {
             case "set tab id":
-                const id = parseInt(msg.id);
                 if (
-                    !isNaN(id) && isFinite(id) &&
-                    id !== chrome.tabs.TAB_ID_NONE
+                    typeof msg.id === "number" &&
+                    !isNaN(msg.id) && isFinite(msg.id) &&
+                    msg.id !== chrome.tabs.TAB_ID_NONE
                 ) {
-                    this.tab = id;
+                    this.tab = msg.id;
                 } else {
                     return;
                 }
@@ -237,6 +237,7 @@ const Popup = class {
                     injected = false;
                     allowOnce = false;
                 }
+
                 this.pipe.postMessage({
                     cmd: "init",
                     injected: injected,
@@ -286,6 +287,7 @@ const Popup = class {
 
                 // Add a delay to prevent going over sync storage throughput
                 // Loading overlay will show during this delay
+                // The response is sent in chrome.storage.onChanged handler
                 setTimeout(() => {
                     chrome.storage.sync.set({ closeOnSpam: closeOnSpam });
                 }, 1000);
