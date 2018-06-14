@@ -8,7 +8,7 @@ Please open an issue if there is something you want me to know.
 
 ## End of Life
 
-Inline Install Blocker will retire with Inline Install on Sep. 12, 2018.
-For more information please read the blog post below:
+Inline Install Blocker will retire with Inline Install, on Sep. 12, 2018.
+For more information, please read the blog post below:
 
 https://blog.chromium.org/2018/06/improving-extension-transparency-for.html
