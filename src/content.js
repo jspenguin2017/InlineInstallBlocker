@@ -61,6 +61,7 @@ const code = () => {
             }));
             if (args[2] instanceof window.Function) {
                 setTimeout(() => {
+                    // This is right, the doc is wrong
                     args[2]("User cancelled install", "userCancelled");
                 }, (500 + 500 * random()) | 0);
             }
