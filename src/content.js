@@ -46,7 +46,7 @@ const code = () => {
 
     const _install = window.chrome.webstore.install
         .bind(window.chrome.webstore);
-    const _installStr = _install.toString();
+    const _installStr = window.chrome.webstore.install.toString();
     const install = (...args) => {
         if (allowOnce) {
             allowOnce = false;
@@ -61,7 +61,7 @@ const code = () => {
             }));
             if (args[2] instanceof window.Function) {
                 setTimeout(() => {
-                    // This is right, the doc is wrong
+                    // This is right, the documentation is wrong
                     args[2]("User cancelled install", "userCancelled");
                 }, (500 + 500 * random()) | 0);
             }
